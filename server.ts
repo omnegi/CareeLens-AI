@@ -38,7 +38,7 @@ async function parsePdfBuffer(buffer: Buffer): Promise<string> {
 }
 
 // -----------------------------------------------------------------
-// 2. Gemini GenAI lazy client initialization
+// 2. Gemini GenAI lazy client initialization & Fallback Engine
 // -----------------------------------------------------------------
 let aiClient: GoogleGenAI | null = null;
 function getGoogleGenAI(): GoogleGenAI {
@@ -57,6 +57,65 @@ function getGoogleGenAI(): GoogleGenAI {
     });
   }
   return aiClient;
+}
+
+/**
+ * Executes a Gemini model call with built-in retries (exponential backoff)
+ * and automatic fallback to gemini-3.1-flash-lite to bypass temporary 503 high demand spikes.
+ */
+async function generateContentWithRetryAndFallback(
+  ai: GoogleGenAI,
+  params: {
+    model: string;
+    contents: any;
+    config?: any;
+  }
+): Promise<any> {
+  const maxRetries = 2;
+  const initialDelayMs = 1200;
+  let currentModel = params.model;
+
+  for (let attempt = 1; ; attempt++) {
+    try {
+      console.log(`[Gemini Pipeline] Querying ${currentModel} (Attempt ${attempt})...`);
+      const response = await ai.models.generateContent({
+        ...params,
+        model: currentModel
+      });
+      return response;
+    } catch (error: any) {
+      const errorMsg = (error?.message || "").toLowerCase();
+      
+      const isTransientError = 
+        errorMsg.includes("503") || 
+        errorMsg.includes("unavailable") || 
+        errorMsg.includes("429") || 
+        errorMsg.includes("resource_exhausted") || 
+        errorMsg.includes("high demand") || 
+        errorMsg.includes("busy") ||
+        errorMsg.includes("temporary");
+
+      console.warn(`[Gemini Pipeline] Error from ${currentModel} (Attempt ${attempt}): ${error.message || error}`);
+
+      if (isTransientError && attempt <= maxRetries) {
+        const delay = initialDelayMs * Math.pow(2, attempt - 1);
+        console.info(`[Gemini Pipeline] Retrying transient error in ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+
+      // If gemini-3.5-flash fails after retries, switch to high-availability gemini-3.1-flash-lite
+      if (currentModel === "gemini-3.5-flash") {
+        console.warn(`[Gemini Pipeline] Transitioning pipeline to high-availability fallback model: gemini-3.1-flash-lite`);
+        currentModel = "gemini-3.1-flash-lite";
+        attempt = 0; // reset attempts for the fallback model
+        await new Promise((resolve) => setTimeout(resolve, 500)); // brief pause
+        continue;
+      }
+
+      throw error;
+    }
+  }
 }
 
 // -----------------------------------------------------------------
@@ -141,7 +200,7 @@ async function startServer() {
         "3. ## CRITICAL FORMATTING WARNINGS: Flag any multi-column layout, custom tables, non-standard text layouts, or other elements that hurt parsability.\n" +
         "4. ## ACTIONABLE BULLET IMPROVEMENTS: Suggest exactly how the user can rewrite 2-3 bullet points from their existing resume to match the STAR framework and utilize missing keywords.";
 
-      const response = await ai.models.generateContent({
+      const response = await generateContentWithRetryAndFallback(ai, {
         model: "gemini-3.5-flash",
         contents: promptMsg,
         config: {
@@ -224,7 +283,7 @@ async function startServer() {
         `ENHANCEMENT FOCUS: ${enhancementFocus || 'all'}\n\n` +
         "Please rewrite the resume text with strategic keyword placement, outstanding typography layout, and output detailed professional recommendations.";
 
-      const response = await ai.models.generateContent({
+      const response = await generateContentWithRetryAndFallback(ai, {
         model: "gemini-3.5-flash",
         contents: promptMsg,
         config: {
@@ -294,7 +353,7 @@ async function startServer() {
         `INTERVIEW CONVERSATION HISTORY:\n${historyText}\n\n` +
         "Formulate and output your next single interview question directly. Output absolutely nothing else.";
 
-      const response = await ai.models.generateContent({
+      const response = await generateContentWithRetryAndFallback(ai, {
         model: "gemini-3.5-flash",
         contents: contextPrompt,
         config: {
@@ -343,7 +402,7 @@ async function startServer() {
         "3. ## VERBAL CLARITY & FILLER ALERT: Assess speaking pace and highlight any filler words used.\n" +
         "4. ## CHOSEN BETTER PATHWAY: Provide an fully re-written exemplar answer illustrating exactly how the candidate should have formulated their response for maximum impact.";
 
-      const response = await ai.models.generateContent({
+      const response = await generateContentWithRetryAndFallback(ai, {
         model: "gemini-3.5-flash",
         contents: promptMsg,
         config: {
