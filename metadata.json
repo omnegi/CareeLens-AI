@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Pro ATS Resume Analyzer",
+  "description": "An advanced full-stack resume ATS analyzer and AI mock interview platform featuring persistent history logs, real-time keyword alignment analysis, and conversational simulations.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

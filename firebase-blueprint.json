@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "Analysis": {
+      "title": "Analysis",
+      "description": "A resume ATS analysis report.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique id of the analysis document" },
+        "userId": { "type": "string", "description": "User UID who owns this analysis" },
+        "roleName": { "type": "string", "description": "Target job title/role" },
+        "companyName": { "type": "string", "description": "Target company name" },
+        "jobDescription": { "type": "string", "description": "Target job description text" },
+        "resumeText": { "type": "string", "description": "Extracted text of parsed resume" },
+        "resumeFilename": { "type": "string", "description": "Filename of the uploaded resume" },
+        "atsScore": { "type": "integer", "description": "ATS match score out of 100" },
+        "matchRateTechnical": { "type": "integer", "description": "Technical skills match percentage" },
+        "matchRateExperience": { "type": "integer", "description": "Experience alignment match percentage" },
+        "matchRateEducation": { "type": "integer", "description": "Education and certifications match percentage" },
+        "matchedKeywords": { "type": "array", "description": "List of keywords matched from the job description" },
+        "missingKeywords": { "type": "array", "description": "List of keywords missing from the resume but present in the job description" },
+        "gapsAndRecommendations": { "type": "string", "description": "Markdown formatted gap analysis and recommendations" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when this analysis was created" }
+      },
+      "required": ["id", "userId", "roleName", "atsScore", "createdAt"]
+    },
+    "Interview": {
+      "title": "Interview",
+      "description": "A mock interview session log.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique id of the interview session" },
+        "userId": { "type": "string", "description": "User UID who conducted this interview" },
+        "roleName": { "type": "string", "description": "Job role for the interview" },
+        "jobDescription": { "type": "string", "description": "Target job description used for generating questions" },
+        "resumeFilename": { "type": "string", "description": "Name of the resume file used" },
+        "score": { "type": "integer", "description": "Overall score of the interview out of 100" },
+        "status": { "type": "string", "enum": ["in-progress", "completed", "aborted"], "description": "Current status of the interview" },
+        "confidenceLevel": { "type": "integer", "description": "Calculated confidence percentage" },
+        "feedbackSummary": { "type": "string", "description": "Overall feedback summary" },
+        "keywordsIdentified": { "type": "array", "description": "List of key terms successfully mentioned by user" },
+        "speechPaceWpm": { "type": "integer", "description": "Average speech pace in WPM" },
+        "chatHistory": { "type": "array", "description": "Chronological speech turns between AI and user" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the interview was created" }
+      },
+      "required": ["id", "userId", "roleName", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "analyses/{analysisId}": {
+      "schema": "Analysis",
+      "description": "Collection of ATS resume analyses"
+    },
+    "interviews/{interviewId}": {
+      "schema": "Interview",
+      "description": "Collection of mock interview sessions"
+    }
+  }
+}

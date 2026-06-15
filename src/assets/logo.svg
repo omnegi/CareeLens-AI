@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <!-- Definitions for advanced gradient glows -->
+  <defs>
+    <!-- Primary Electric Blue Gradient -->
+    <linearGradient id="electricGlow" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="40%" stop-color="#818cf8" />
+      <stop offset="100%" stop-color="#89ceff" />
+    </linearGradient>
+
+    <!-- Warm Amber Accent Gradient -->
+    <linearGradient id="amberGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffb86a" />
+      <stop offset="100%" stop-color="#f09408" />
+    </linearGradient>
+
+    <!-- Soft Ambient Shadow -->
+    <filter id="subtleShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000000" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- Grounding circular concentric lens system -->
+  <g filter="url(#subtleShadow)">
+    <!-- Outer Focus Dot-Ring representing precision scan telemetry -->
+    <circle cx="100" cy="100" r="84" fill="none" stroke="#89ceff" stroke-width="1.5" stroke-dasharray="3 8" opacity="0.45" />
+
+    <!-- Sleek segmented lens focus brackets -->
+    <path d="M 50 35 A 80 80 0 0 1 150 35" fill="none" stroke="url(#electricGlow)" stroke-width="4.5" stroke-linecap="round" />
+    <path d="M 150 165 A 80 80 0 0 1 50 165" fill="none" stroke="#2a3045" stroke-width="3" stroke-linecap="round" opacity="0.7" />
+
+    <!-- Dynamic Aperture blades representing "Lens" -->
+    <path d="M 40 100 L 52 88 M 160 100 L 148 112 M 100 40 L 112 52 M 100 160 L 88 148" stroke="#89ceff" stroke-width="2.5" stroke-linecap="round" opacity="0.6" />
+
+    <!-- Central Career Trajectory: Three stylized growing bars converging into an ascending arrow -->
+    <!-- Pillar 1: Base Operational Growth -->
+    <path d="M 68 135 L 68 120 A 4 4 0 0 1 72 116 L 76 116 A 4 4 0 0 1 80 120 L 80 135 Z" fill="#2a3045" opacity="0.8" />
+
+    <!-- Pillar 2: Strategic Ops Acceleration -->
+    <path d="M 88 135 L 88 95 A 4 4 0 0 1 92 91 L 96 91 A 4 4 0 0 1 100 95 L 100 135 Z" fill="url(#amberGlow)" />
+
+    <!-- Pillar 3 & Ascent Arrow: Executive Vision & Pinnacle Growth -->
+    <!-- The Pillar -->
+    <path d="M 108 135 L 108 80 C 108 76 112 72 116 72 C 120 72 124 76 124 80 L 124 135 Z" fill="url(#electricGlow)" />
+    
+    <!-- Ascending Telemetry Growth Path looping off to the upper right representing limitless scalability -->
+    <path d="M 72 135 C 72 90, 100 64, 134 50" fill="none" stroke="url(#electricGlow)" stroke-width="5" stroke-linecap="round" />
+    
+    <!-- High Contrast Terminal Arrow Head pointing north-east -->
+    <polygon points="130,42 146,45 143,61" fill="#89ceff" />
+    
+    <!-- Central Focal Core representing intelligence/aperture center -->
+    <circle cx="100" cy="100" r="12" fill="#000000" stroke="url(#electricGlow)" stroke-width="2.5" />
+    <circle cx="100" cy="100" r="4" fill="#ffb86a" />
+  </g>
+</svg>
